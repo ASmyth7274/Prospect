@@ -1,0 +1,18 @@
+{
+  "name": "Prospect! - Dig, Pan, Strike it Rich",
+  "short_name": "Prospect!",
+  "description": "A 3D prospecting adventure: dig sand, pan for gold, gems and rare minerals across a huge island.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#0b1020",
+  "theme_color": "#1a2f5a",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "prospect",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Prospect! - a 3D prospecting PWA game: dig, pan, and strike it rich.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/postbuild.mjs",
+    "preview": "vite preview",
+    "icons": "node scripts/make-icons.mjs"
+  },
+  "dependencies": {
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "vite": "7.3.7"
+  }
+}
