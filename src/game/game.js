@@ -162,6 +162,10 @@ export class Game {
     await this.renderer.compileAsync?.(this.scene, this.camera).catch(() => {});
     this.chat.system('Welcome to Prospect! Dig, pan, and strike it rich. ⛏️');
     if (!this.save.quests.done.q_start1) this.chat.system('Talk to John by the statue to get started (look for the ! marker).');
+    if (this.save.playTime < 1) {
+      this.ui.state.menuTab = 'help';
+      setTimeout(() => this.ui.open('menu'), 400);
+    }
     window.__game = this;
   }
 
@@ -215,6 +219,7 @@ export class Game {
         else if (!ui.isOpen || ['inventory', 'quests', 'index', 'map'].includes(ui.current)) ui.open(map[code]);
       }
       if (code === 'KeyQ' && !ui.isOpen) this.quickPotion();
+      if (code === 'Tab') this.hud.toggleLeaderboard();
     });
     this.renderer.domElement.addEventListener('pointerdown', () => this.audio.unlock());
   }

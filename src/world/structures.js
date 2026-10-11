@@ -211,6 +211,7 @@ export class Structures {
   }
 
   build() {
+    this.buildDecks();
     for (const o of STRUCTURES) {
       const fn = this['b_' + o.type];
       if (!fn) {
@@ -220,6 +221,90 @@ export class Structures {
       fn.call(this, o);
     }
     this.finish();
+  }
+
+  // Bridges, piers and other walkable decks (data lives in WorldData.decks)
+  buildDecks() {
+    const w = this.world;
+    for (const d of w.decks) {
+      const stone = d.id === 'caldera_bridge';
+      const plankCol = stone ? '#7d756c' : '#8a5a34';
+      const plankCol2 = stone ? '#6e665d' : '#7a4f2a';
+      const beamCol = stone ? '#5a534c' : '#5a3a1e';
+      const base = this.frame(d.x, d.h, d.z, d.yaw);
+      const half = d.len / 2;
+      const gatedMid = d.gated ? this.gatedBuilder(d.gated, false) : null;
+      const brokenMid = d.gated ? this.gatedBuilder(d.gated, true) : null;
+      const plain = this.bucket(d.x, d.z);
+      const pick = (lx) => {
+        if (!gatedMid) return plain;
+        return Math.abs(lx) < half - 22 ? gatedMid.gb : plain;
+      };
+      for (const g of [plain, gatedMid?.gb, brokenMid?.gb]) if (g) g.base = base;
+      // planks
+      const step = 0.62;
+      for (let lx = -half + 0.3; lx <= half - 0.3; lx += step) {
+        const gb = pick(lx);
+        const jitter = ((lx * 7.3) % 1) * 0.04;
+        gb.box(0.54, 0.16, d.wid, Math.round(lx / step) % 2 ? plankCol : plankCol2, { x: lx, y: -0.08 + jitter * 0.3, ry: jitter * 0.3 });
+      }
+      // side beams
+      for (const sz of [-1, 1]) {
+        if (gatedMid) {
+          plain.box(22, 0.3, 0.3, beamCol, { x: -half + 11, y: -0.3, z: (sz * d.wid) / 2 - sz * 0.2 });
+          plain.box(22, 0.3, 0.3, beamCol, { x: half - 11, y: -0.3, z: (sz * d.wid) / 2 - sz * 0.2 });
+          gatedMid.gb.box(d.len - 44, 0.3, 0.3, beamCol, { y: -0.3, z: (sz * d.wid) / 2 - sz * 0.2 });
+        } else plain.box(d.len, 0.3, 0.3, beamCol, { y: -0.3, z: (sz * d.wid) / 2 - sz * 0.2 });
+      }
+      // support posts down to the ground / river bed
+      const postEvery = stone ? 10 : 6;
+      for (let lx = -half + 1; lx <= half - 1; lx += postEvery) {
+        for (const sz of [-1, 1]) {
+          const lz = (sz * d.wid) / 2 - sz * 0.25;
+          const [wx, wz] = this.lw({ x: d.x, z: d.z, yaw: d.yaw }, lx, lz);
+          const th = w.heightAt(wx, wz);
+          const hgt = d.h - th + 0.6;
+          if (hgt < 0.4) continue;
+          const gb = pick(lx);
+          if (stone) gb.box(1.2, hgt, 1.2, '#6e665d', { x: lx, y: -hgt / 2 - 0.1, z: lz });
+          else gb.cyl(0.18, 0.2, hgt, 6, beamCol, { x: lx, y: -hgt / 2 - 0.1, z: lz });
+        }
+      }
+      // rails
+      if (d.rail) {
+        for (const sz of [-1, 1]) {
+          const lz = (sz * d.wid) / 2 - sz * 0.1;
+          for (let lx = -half + 0.5; lx <= half - 0.5; lx += 3) pick(lx).box(0.16, 1.1, 0.16, beamCol, { x: lx, y: 0.55, z: lz });
+          if (gatedMid) {
+            plain.box(22, 0.12, 0.12, beamCol, { x: -half + 11, y: 1.05, z: lz });
+            plain.box(22, 0.12, 0.12, beamCol, { x: half - 11, y: 1.05, z: lz });
+            gatedMid.gb.box(d.len - 44, 0.12, 0.12, beamCol, { y: 1.05, z: lz });
+          } else plain.box(d.len, 0.12, 0.12, beamCol, { y: 1.05, z: lz });
+          // keep players from walking off the sides
+          const [cx, cz] = this.lw({ x: d.x, z: d.z, yaw: d.yaw }, 0, lz);
+          const c = this.colliders.addBox(cx, cz, half, 0.12, d.yaw, d.h - 0.2, d.h + 1.3);
+          if (gatedMid) gatedMid.colliders.push(c);
+        }
+      }
+      if (stone) {
+        // lamp posts along the long bridge
+        const gl = this.bucket(d.x, d.z, 'glow');
+        gl.base = base;
+        for (let lx = -half + 6; lx < half; lx += 24) {
+          for (const sz of [-1, 1]) {
+            const lz = (sz * d.wid) / 2 - sz * 0.1;
+            pick(lx).box(0.2, 3, 0.2, '#3a3a3a', { x: lx, y: 1.5, z: lz });
+            gl.box(0.45, 0.5, 0.45, '#ffd27a', { x: lx, y: 3.1, z: lz });
+          }
+        }
+        gl.base = null;
+        // broken stubs + floating debris when not repaired
+        brokenMid.gb.box(3, 0.16, d.wid * 0.8, plankCol2, { x: -half + 24, y: -0.6, rz: 0.4 });
+        brokenMid.gb.box(3, 0.16, d.wid * 0.7, plankCol, { x: half - 24, y: -0.7, rz: -0.35 });
+        for (let i = 0; i < 6; i++) brokenMid.gb.box(1.6, 0.14, 0.5, plankCol, { x: -30 + i * 11, y: -(d.h - 0.2), z: ((i * 37) % 5) - 2, ry: i });
+      }
+      for (const g of [plain, gatedMid?.gb, brokenMid?.gb]) if (g) g.base = null;
+    }
   }
 
   finish() {

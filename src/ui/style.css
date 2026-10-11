@@ -1,4 +1,5 @@
 :root {
+  color-scheme: dark;
   --font: ui-rounded, 'SF Pro Rounded', 'Nunito', 'Arial Rounded MT Bold', system-ui, -apple-system, sans-serif;
   --panel: rgba(20, 26, 44, 0.92);
   --panel2: rgba(34, 44, 72, 0.95);
@@ -65,6 +66,12 @@ button { font-family: var(--font); }
 .minimap-wrap canvas { width: 100%; height: 100%; display: block; }
 .clock { font-weight: 900; font-size: 14px; background: rgba(0,0,0,.4); padding: 3px 10px; border-radius: 12px; display: flex; gap: 6px; align-items: center; }
 .fps { font: 700 11px ui-monospace, Menlo, monospace; color: #cfe; background: rgba(0,0,0,.45); padding: 2px 6px; border-radius: 6px; white-space: pre; text-align: right; }
+.leaderboard { background: rgba(10,14,26,.82); border: 2px solid rgba(255,255,255,.18); border-radius: 12px; width: 250px; max-height: 46vh; overflow: auto; font-size: 12px; font-weight: 800; padding: 4px 0; }
+.lb-head, .lb-row { display: grid; grid-template-columns: 1fr 34px 92px; gap: 6px; padding: 3px 10px; }
+.lb-head { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--line); }
+.lb-row span:last-child, .lb-head span:last-child { text-align: right; color: var(--money); font-variant-numeric: tabular-nums; }
+.lb-row span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-row.me { background: rgba(255,210,63,.15); color: var(--gold); }
 .status-row { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
 .status { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.45); border: 2px solid rgba(255,255,255,.15); border-radius: 12px; padding: 2px 8px 2px 4px; font-size: 13px; font-weight: 800; }
 .status.bad { border-color: rgba(255,90,106,.7); }

@@ -1012,7 +1012,7 @@ export class UI {
     } else if (tab === 'save') {
       const s = this.save;
       html += `<div class="row"><div class="grow"><div class="t">Slot ${this.game.slot + 1}: ${esc(s.name)}</div><div class="d">Autosaves every 20 seconds and when you leave. Play time ${fmtTime(s.playTime)}.</div></div><button class="btn" data-a="saveNow">💾 Save now</button></div>`;
-      html += `<div class="sect">Export / Import</div><div class="d">Copy this code to back up your save or move it to another device.</div><textarea class="savebox" id="saveBox" readonly>${esc(this.game.saves.exportString(this.game.save))}</textarea><div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap"><button class="btn small blue" data-a="copySave">📋 Copy</button><button class="btn small gray" data-a="downloadSave">⬇️ Download file</button></div>`;
+      html += `<div class="sect">Export / Import</div><div class="d">Copy this code to back up your save or move it to another device.</div><textarea class="savebox" id="saveBox" readonly>${esc(this.game.saves.exportString(this.game.save))}</textarea><div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap"><button class="btn small blue" data-a="copySave">📋 Copy</button>${window.self === window.top ? '<button class="btn small gray" data-a="downloadSave">⬇️ Download file</button>' : ''}</div>`;
       html += `<div class="sect">Import into this slot</div><textarea class="savebox" id="importBox" placeholder="Paste a save code here"></textarea><button class="btn small red" style="margin-top:6px" data-a="importSave">Import (overwrites this slot)</button>`;
       html += `<div class="sect">Leave</div><button class="btn gray" data-a="quitTitle">🏠 Save & quit to title</button>`;
     } else {

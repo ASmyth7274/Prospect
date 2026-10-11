@@ -86,7 +86,8 @@ export class Bots {
       isBot: true,
       anim: { state: 'idle', t: 0, phase: 0, actionT: 0 },
     };
-    const bot = { char, name, state: 'init', t: 0, target: null, site: null, digsLeft: 0, stuck: 0, lastX: 0, lastZ: 0, speed: 6.5 + Math.random() * 2.5, luck: 1 + Math.random() * 3 };
+    const wealth = Math.pow(10, 2.5 + Math.random() * 5.5);
+    const bot = { char, name, state: 'init', t: 0, target: null, site: null, digsLeft: 0, stuck: 0, lastX: 0, lastZ: 0, speed: 6.5 + Math.random() * 2.5, luck: 1 + Math.random() * 3, money: Math.round(wealth), income: wealth * (0.002 + Math.random() * 0.004), level: Math.max(1, Math.round(Math.log10(wealth) * 6 - 10 + Math.random() * 6)) };
     return bot;
   }
 
@@ -330,6 +331,7 @@ export class Bots {
       }
       if (bot.state !== 'walk') c.y = Math.max(c.y, w.groundAt(c.x, c.z, c.y + 0.5) - 0.01);
     }
+    for (const bot of this.bots) bot.money += bot.income * dt;
     // ambient chat
     this.chatTimer -= dt;
     if (this.chatTimer <= 0) {

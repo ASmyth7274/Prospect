@@ -57,7 +57,8 @@ export class HUD {
       </div>
       <div class="hud-tr">
         <div class="minimap-wrap" id="h-minimap"><canvas width="220" height="220"></canvas></div>
-        <div class="clock stroke" id="h-clock"></div>
+        <div style="display:flex;gap:6px"><button class="clock stroke" id="h-lbbtn" title="Players (Tab)" style="border:0;cursor:pointer;color:#fff">👥 <span id="h-pc">1</span></button><div class="clock stroke" id="h-clock"></div></div>
+        <div class="leaderboard hidden" id="h-lb"></div>
         <div class="fps hidden" id="h-fps"></div>
         <div class="status-row" id="h-status"></div>
       </div>
@@ -126,6 +127,7 @@ export class HUD {
       }),
     );
     $('#h-minimap').addEventListener('click', () => game.ui.open('map'));
+    $('#h-lbbtn').addEventListener('click', () => this.toggleLeaderboard());
     this.els.prompt.addEventListener('click', () => game.interact());
     this.setupTouch();
     this.mmCtx = this.els.minimap.getContext('2d');
@@ -171,6 +173,22 @@ export class HUD {
       },
       { passive: false },
     );
+  }
+
+  toggleLeaderboard(force) {
+    this.lbOpen = force ?? !this.lbOpen;
+    $('#h-lb').classList.toggle('hidden', !this.lbOpen);
+    this.drawLeaderboard();
+  }
+
+  drawLeaderboard() {
+    if (!this.lbOpen) return;
+    const g = this.game;
+    const rows = g.bots.bots.map((b) => ({ name: b.name, money: b.money, level: b.level, me: false }));
+    rows.push({ name: g.save.name, money: g.save.money, level: g.save.level, me: true });
+    rows.sort((a, b) => b.money - a.money);
+    const html = `<div class="lb-head"><span>Player</span><span>Lvl</span><span>Money</span></div>` + rows.map((r) => `<div class="lb-row ${r.me ? 'me' : ''}"><span>${esc(r.name)}</span><span>${r.level}</span><span>${fmtMoney(r.money)}</span></div>`).join('');
+    $('#h-lb').innerHTML = html;
   }
 
   show(on) {
@@ -319,6 +337,8 @@ export class HUD {
       this.updateStatus();
       this.updateEvents();
       E.qdot.classList.toggle('hidden', !g.hasQuestAttention());
+      $('#h-pc').textContent = g.bots.bots.length + 1;
+      if (this.lbOpen && (this.lbT = (this.lbT || 0) + 1) % 8 === 0) this.drawLeaderboard();
       if (g.settings.showFps) {
         E.fps.classList.remove('hidden');
         const info = g.renderer.info.render;

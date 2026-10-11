@@ -52,9 +52,19 @@ function renderTitle() {
       saves.create(+b.dataset.new, name);
       start(+b.dataset.new);
     } else if (b.dataset.del) {
-      if (confirm('Delete this save forever?')) {
+      // two-step delete (dialogs are unavailable in some embedded viewers)
+      if (b.dataset.armed) {
         saves.remove(+b.dataset.del);
         renderTitle();
+      } else {
+        b.dataset.armed = '1';
+        b.textContent = 'Tap again to delete';
+        setTimeout(() => {
+          if (b.isConnected) {
+            delete b.dataset.armed;
+            b.textContent = 'Delete';
+          }
+        }, 3000);
       }
     } else if (b.dataset.q) {
       settings.quality = b.dataset.q;
@@ -85,6 +95,8 @@ async function start(slot) {
     const r = await createRenderer($('#game'), settings);
     progress(0.01, `Renderer: ${r.backendName}${r.metal ? ' (Metal)' : ''}`);
     const game = new Game({ ...r, settings, saves, slot, save });
+    currentGame = game;
+    currentSlot = slot;
     await game.init(progress);
     L.classList.add('hidden');
     game.start();
@@ -105,17 +117,38 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 document.addEventListener('dblclick', (e) => e.preventDefault());
 
-const params = new URLSearchParams(location.search);
-let auto = null;
-try {
-  auto = sessionStorage.getItem('prospect.autostart');
-  sessionStorage.removeItem('prospect.autostart');
-} catch (e) {
-  /* ignore */
+let currentGame = null;
+let currentSlot = null;
+
+function boot(data = {}) {
+  const params = new URLSearchParams(location.search);
+  let auto = null;
+  try {
+    auto = sessionStorage.getItem('prospect.autostart');
+    sessionStorage.removeItem('prospect.autostart');
+  } catch (e) {
+    /* ignore */
+  }
+  if (params.has('slot')) auto = params.get('slot');
+  if (data && data.slot !== undefined && data.slot !== null) auto = data.slot;
+  if (auto !== null && auto !== undefined) {
+    const i = +auto;
+    if (!saves.read(i)) saves.create(i, params.get('name') || 'Prospector');
+    start(i);
+  } else renderTitle();
 }
-if (params.has('slot')) auto = params.get('slot');
-if (auto !== null && auto !== undefined) {
-  const i = +auto;
-  if (!saves.read(i)) saves.create(i, params.get('name') || 'Prospector');
-  start(i);
-} else renderTitle();
+
+// Embedded viewers can hot-swap the page; keep the player in their save slot across updates.
+const hot = window.claude?.hot;
+if (hot?.snapshot) {
+  hot.snapshot(() => {
+    try {
+      currentGame?.saveGame();
+    } catch (e) {
+      /* ignore */
+    }
+    return { slot: currentSlot };
+  });
+}
+if (hot?.ready) hot.ready(boot);
+else boot(hot?.data ?? {});

@@ -37,7 +37,7 @@ work your way out to harder sands with rarer minerals.
 * **Progression**: 12 pans and 12 shovels; a museum that gives permanent boosts for each displayed
   specimen; 17 craftable rings and ring slots; Aurorite and Aetherite enchanting at the Mysterious
   Altar; potions and placeable totems; sluices that keep collecting while you're offline; levels.
-* **26 NPC quests**, including area-unlock chains (Edna's generator opens the caverns, Lou's lighthouse
+* **27 NPC quests**, including area-unlock chains (Edna's generator opens the caverns, Lou's lighthouse
   rebuilds the Caldera bridge, the Flame Priest opens the Infernal Heart), plus daily bounties.
 * **World events**: Meteor Shower, Solar Flare, River Rapids, Mythic Rift and Lucky Breeze.
   **Location events**: Rainstorm, Sandstorm, Blizzard, Eruption, Aurora, Low Tide and the Infernal

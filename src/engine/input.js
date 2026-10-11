@@ -43,6 +43,7 @@ export class Input {
         return;
       }
       this.keys.add(e.code);
+      if (e.code === 'Tab') e.preventDefault();
       if (e.code === 'Space') {
         this.jumpPressed = true;
         e.preventDefault();
